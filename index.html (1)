@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Warning — System Intrusion</title>
+<style>
+  :root{--bg:#061022;--card:#071426;--accent:#ff4d4d;--muted:#9fb2c8}
+  *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Noto Sans',sans-serif;background:linear-gradient(180deg,var(--bg),#02111b);color:#dff0ff;height:100vh;display:flex;align-items:center;justify-content:center}
+  .frame{width:92%;max-width:760px;padding:28px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);box-shadow:0 12px 40px rgba(2,6,23,0.7)}
+  h1{margin:0;font-size:20px;color:var(--accent)}
+  p{margin:6px 0 12px;color:var(--muted)}
+  .console{background:#000814;color:#bfe7ff;padding:16px;border-radius:10px;min-height:220px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;overflow:hidden;position:relative}
+  .line{opacity:0;transform:translateY(8px);animation:fadeIn .6s forwards}
+  @keyframes fadeIn{to{opacity:1;transform:none}}
+  .progressWrap{height:12px;background:rgba(255,255,255,0.03);border-radius:8px;margin-top:14px;overflow:hidden}
+  .progress{height:100%;width:0%;background:linear-gradient(90deg,#00ff9c,#00a0ff);transition:width 800ms ease}
+  .controls{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  button{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+  .btn-stop{background:#2b3948;color:#dbefff}
+  .btn-reset{background:#0a5bff;color:white}
+  .big-prank{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,10,0.85);z-index:9999;backdrop-filter:blur(2px);flex-direction:column;color:white;font-size:22px;gap:12px;display:none}
+  .big-prank.show{display:flex}
+  .safe-note{font-size:12px;color:#a8c0d8;margin-top:8px}
+</style>
+</head>
+<body>
+  <div class="frame" role="main" aria-live="polite">
+    <h1>⚠️ ALERT — Unauthorized Access Detected</h1>
+    <p>कहीं भी क्लिक करो — दिखने में ऐसा लगेगा कि डिवाइस पर पहुँच बनाई जा रही है (यह सिर्फ़ मज़ाक है)।</p>
+
+    <div class="console" id="console" aria-hidden="false"></div>
+
+    <div class="progressWrap" aria-hidden="true">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="controls">
+      <button id="stop" class="btn-stop">रोकें</button>
+      <button id="reset" class="btn-reset">रीसेट</button>
+      <div style="margin-left:auto;color:var(--muted);align-self:center;font-size:13px">Prank Mode - harmless</div>
+    </div>
+
+    <div class="safe-note">नोट: यह केवल दिखाने के लिए है — कोई भी वास्तविक डेटा नहीं लिया जा रहा।</div>
+  </div>
+
+  <div id="prankPopup" class="big-prank" role="dialog" aria-modal="true">
+    <div style="font-size:40px;">🎉 PRANK!</div>
+    <div style="font-size:18px;opacity:.95">यह बस मज़ाक था — कुछ भी हैक नहीं हुआ 😁</div>
+    <button id="closePopup" style="padding:10px 14px;border-radius:10px;border:0;background:#00c46b;color:#002">ठीक है</button>
+  </div>
+
+<script>
+(() => {
+  // fake "log" lines to show — harmless strings only
+  const logs = [
+    "Initializing secure tunnel to target device...",
+    "Resolving device signature... [OK]",
+    "Establishing handshake with remote process...",
+    "Bypassing soft firewall... [SIMULATED]",
+    "Reading installed apps list... (read-only)",
+    "Extracting superficial metadata... (no personal data accessed)",
+    "Injecting playful payload... preparing surprise",
+    "COMPROMISE LEVEL: LOW — PRANK MODE ENGAGED"
+  ];
+
+  const consoleEl = document.getElementById('console');
+  const progressEl = document.getElementById('progress');
+  const stopBtn = document.getElementById('stop');
+  const resetBtn = document.getElementById('reset');
+  const popup = document.getElementById('prankPopup');
+  const closePopup = document.getElementById('closePopup');
+
+  let running = false, step = 0, progress = 0, timerId = null;
+
+  function appendLine(text, delay=0) {
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.textContent = text;
+    consoleEl.appendChild(div);
+    // scroll to bottom
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+
+  function startSequence() {
+    if (running) return;
+    running = true;
+    step = 0; progress = 0;
+    consoleEl.innerHTML = '';
+    progressEl.style.width = '0%';
+
+    // speak a little (optional, harmless)
+    if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance("Attention. Simulation start. This is a prank.");
+      u.lang = 'hi-IN';
+      u.rate = 0.95;
+      window.speechSynthesis.cancel(); // clear
+      setTimeout(()=> window.speechSynthesis.speak(u), 400);
+    }
+
+    // show logs gradually
+    timerId = setInterval(() => {
+      if (step < logs.length) {
+        appendLine(logs[step]);
+        step++;
+      } else {
+        // accelerate progress to reveal prank
+        progress += 6 + Math.random()*10;
+        if (progress > 100) progress = 100;
+        progressEl.style.width = progress + '%';
+        // small fake dynamic lines
+        appendLine("Status: " + ["scanning","probing","simulating","finalizing"][Math.floor(Math.random()*4)] + "...");
+      }
+
+      // finish condition
+      if (progress >= 100 || step > logs.length + 6) {
+        endSequence();
+      }
+    }, 800);
+  }
+
+  function endSequence() {
+    clearInterval(timerId); timerId = null; running = false;
+    // final dramatic lines
+    appendLine(">> SURPRISE PAYLOAD: LAUNCHING...");
+    progressEl.style.width = '100%';
+    setTimeout(()=> {
+      // show big prank popup
+      popup.classList.add('show');
+      // small confetti (emoji)
+      burstEmoji(window.innerWidth/2, window.innerHeight/2);
+    }, 700);
+  }
+
+  function stopSequence() {
+    clearInterval(timerId); timerId = null; running = false;
+    appendLine("[PRANK STOPPED BY USER]");
+    progressEl.style.width = '0%';
+  }
+
+  function resetAll() {
+    clearInterval(timerId); timerId = null; running = false;
+    consoleEl.innerHTML = '';
+    progressEl.style.width = '0%';
+    popup.classList.remove('show');
+  }
+
+  // emoji burst util (harmless visual)
+  function burstEmoji(x,y){
+    for(let i=0;i<14;i++){
+      const e = document.createElement('div');
+      e.textContent = ['🎉','🤣','😜','💥','😂'][Math.floor(Math.random()*5)];
+      e.style.position='fixed';
+      e.style.left=(x)+'px';
+      e.style.top=(y)+'px';
+      e.style.fontSize=(12+Math.random()*34)+'px';
+      e.style.pointerEvents='none';
+      e.style.transition='transform 1100ms cubic-bezier(.2,.9,.2,1), opacity 1100ms';
+      document.body.appendChild(e);
+      setTimeout(()=> {
+        const dx = (Math.random()-0.5)*400;
+        const dy = -200 - Math.random()*200;
+        e.style.transform = `translate(${dx}px, ${dy}px) rotate(${(Math.random()-0.5)*720}deg)`;
+        e.style.opacity = '0';
+      }, 20 + i*30);
+      setTimeout(()=> e.remove(), 1400);
+    }
+  }
+
+  // start on first user click anywhere (to satisfy autoplay policies)
+  window.addEventListener('click', function firstClick() {
+    startSequence();
+    window.removeEventListener('click', firstClick);
+  }, {once:true});
+
+  stopBtn.addEventListener('click', stopSequence);
+  resetBtn.addEventListener('click', resetAll);
+  closePopup.addEventListener('click', () => { popup.classList.remove('show'); resetAll(); });
+
+  // also allow keyboard trigger
+  window.addEventListener('keydown', (e) => { if(e.key===' '|| e.key==='Enter') startSequence(); });
+
+})();
+</script>
+</body>
+</html>
